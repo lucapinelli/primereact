@@ -7,7 +7,7 @@ import {MultiSelectItem} from './MultiSelectItem';
 import {MultiSelectHeader} from './MultiSelectHeader';
 
 export class MultiSelect extends Component {
-    
+
     static defaultProps = {
         id: null,
         value: null,
@@ -57,21 +57,21 @@ export class MultiSelect extends Component {
         let optionValue = event.option.value;
         let selectionIndex = this.findSelectionIndex(optionValue);
         let newValue;
-        
+
         if(selectionIndex !== -1)
             newValue = this.props.value.filter((val, i) => i !== selectionIndex);
         else
             newValue = [...this.props.value || [], optionValue];
-        
+
         this.updateModel(event.originalEvent, newValue);
-        event.stopPropagation();
+        event.originalEvent.stopPropagation();
     }
 
     onClick() {
         if(this.disabled) {
             return;
         }
-        
+
         if(this.documentClickListener) {
             this.selfClick = true;
         }
@@ -86,10 +86,10 @@ export class MultiSelect extends Component {
             }
         }
     }
-    
+
     onToggleAll(event) {
         let newValue;
-        
+
         if(event.checked) {
             newValue = [];
         }
@@ -99,13 +99,13 @@ export class MultiSelect extends Component {
                 newValue = [];
                 for(let option of options) {
                     newValue.push(option.value);
-                } 
+                }
             }
         }
-        
+
         this.updateModel(event.originalEvent, newValue);
     }
-    
+
     updateModel(event, value) {
         if(this.props.onChange) {
             this.props.onChange({
@@ -114,11 +114,11 @@ export class MultiSelect extends Component {
             });
         }
     }
-    
+
     onFilter(event) {
         this.setState({filter: event.query});
     }
-    
+
     onPanelClick() {
         this.panelClick = true;
     }
@@ -137,16 +137,16 @@ export class MultiSelect extends Component {
         this.panel.style.display = 'none';
         this.unbindDocumentClickListener();
     }
-    
+
     onCloseClick(event) {
         this.hide();
         event.preventDefault();
         event.stopPropagation();
     }
-    
+
     findSelectionIndex(value) {
         let index = -1;
-        
+
         if(this.props.value) {
             for(let i = 0; i < this.props.value.length; i++) {
                 if(ObjectUtils.equals(this.props.value[i], value, this.props.key)) {
@@ -155,7 +155,7 @@ export class MultiSelect extends Component {
                 }
             }
         }
-        
+
         return index;
     }
 
@@ -165,7 +165,7 @@ export class MultiSelect extends Component {
 
     getLabel() {
         let label;
-        
+
         if(this.props.value && this.props.value.length) {
             label = '';
             for(let i = 0; i < this.props.value.length; i++) {
@@ -188,7 +188,7 @@ export class MultiSelect extends Component {
             var option = this.props.options[i];
             if(option.value === val) {
                 label = option.label;
-                break; 
+                break;
             }
         }
         return label;
@@ -197,18 +197,18 @@ export class MultiSelect extends Component {
     onFocus() {
         DomHandler.addClass(this.container, 'ui-state-focus');
     }
-    
+
     onBlur() {
         DomHandler.removeClass(this.container, 'ui-state-focus');
     }
-    
+
     bindDocumentClickListener() {
         if(!this.documentClickListener) {
             this.documentClickListener = this.onDocumentClick.bind(this);
             document.addEventListener('click', this.documentClickListener);
         }
     }
-    
+
     unbindDocumentClickListener() {
         if(this.documentClickListener) {
             document.removeEventListener('click', this.documentClickListener);
@@ -224,27 +224,27 @@ export class MultiSelect extends Component {
         if(!this.selfClick && !this.panelClick && this.panel.offsetParent) {
             this.hide();
         }
-        
+
         this.selfClick = false;
         this.panelClick = false;
     }
-    
+
     filterOption(option) {
         let filterValue = this.state.filter.trim().toLowerCase();
         return option.label.toLowerCase().indexOf(filterValue.toLowerCase()) > -1;
     }
-    
+
     hasFilter() {
         return this.state.filter && this.state.filter.trim().length > 0;
     }
-    
+
     isAllChecked(visibleOptions) {
         if(this.hasFilter())
             return this.props.value && visibleOptions && visibleOptions.length&&(this.props.value.length === visibleOptions.length);
         else
             return this.props.value && this.props.options && (this.props.value.length === this.props.options.length);
-    } 
-    
+    }
+
     filterOptions(options) {
         return options.filter((option) => {
             return this.filterOption(option);
@@ -257,18 +257,18 @@ export class MultiSelect extends Component {
         });
         let label = this.getLabel();
         let items = this.props.options;
-        
+
         if(items) {
             if(this.hasFilter()) {
                 items = this.filterOptions(items);
             }
-            
+
             items = items.map((option) => {
-                return <MultiSelectItem key={option.label} option={option} template={this.props.itemTemplate} 
+                return <MultiSelectItem key={option.label} option={option} template={this.props.itemTemplate}
                         selected={this.isSelected(option.value)} onClick={this.onOptionClick} />;
                 });
         }
-        
+
         return (
             <div id={this.props.id} className={className} onClick={this.onClick} ref={(el) => {this.container = el;}} style={this.props.style}>
                 <div className="ui-helper-hidden-accessible">
@@ -280,13 +280,13 @@ export class MultiSelect extends Component {
                 <div className="ui-multiselect-trigger ui-state-default ui-corner-right">
                     <span className="fa fa-fw fa-caret-down ui-c"></span>
                 </div>
-                <div className="ui-multiselect-panel ui-widget-content ui-corner-all ui-helper-hidden ui-shadow" 
+                <div className="ui-multiselect-panel ui-widget-content ui-corner-all ui-helper-hidden ui-shadow"
                     ref={(el) => this.panel = el} onClick={this.onPanelClick}>
-                    <MultiSelectHeader filter={this.props.filter} filterValue={this.state.filter} onFilter={this.onFilter} 
+                    <MultiSelectHeader filter={this.props.filter} filterValue={this.state.filter} onFilter={this.onFilter}
                         onClose={this.onCloseClick} onToggleAll={this.onToggleAll} allChecked={this.isAllChecked(items)}/>
                     <div className="ui-multiselect-items-wrapper" style={{maxHeight: this.props.scrollHeight}}>
                         <ul className="ui-multiselect-items ui-multiselect-list ui-widget-content ui-widget ui-corner-all ui-helper-reset">
-                            {items}  
+                            {items}
                         </ul>
                     </div>
                 </div>
